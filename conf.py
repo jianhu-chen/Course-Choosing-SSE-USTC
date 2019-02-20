@@ -9,7 +9,7 @@
 # 账号
 USER_ACCOUNT = {
 	'userId': 'SA18225034',
-	'userPwd': '124279'
+	'userPwd': ''
 }
 
 # 选课学年
