@@ -34,5 +34,5 @@ pip install prettytable # 美美地打印表格
 - 在项目根目录运行：
 
 ```shell
-python courseChoosingSSE.py
+python main.py
 ```

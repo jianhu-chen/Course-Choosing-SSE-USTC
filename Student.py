@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-20 16:27:56
+# @Last Modified time: 2019-02-21 00:34:18
 
 import requests
 import re
@@ -303,7 +303,7 @@ class Student:
 			response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
 			result = response.text.encode('utf-8')
 			self.writeLogs('线程{}：正在抢课【{}】\t结果：{}'.format(index, courseName, result))
-			sleepTime = random.gauss(2, 1)
+			sleepTime = random.uniform(1.1,3.2)
 			self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, sleepTime))
 			time.sleep(sleepTime) # 休息一会儿
 
