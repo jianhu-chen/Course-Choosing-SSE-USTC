@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-20 16:27:38
+# @Last Modified time: 2019-02-21 00:37:31
 
 # 账号
 USER_ACCOUNT = {
@@ -16,7 +16,7 @@ USER_ACCOUNT = {
 YEAR = '2018'
 
 # 选课学期
-TERM = '1'
+TERM = '2'
 
 # 你是苏州的学生还是合肥的？
 # 苏州 | 合肥
