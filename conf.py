@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-21 16:43:24
+# @Last Modified time: 2019-02-21 18:06:23
 
 # 账号
 USER_ACCOUNT = {
@@ -33,3 +33,4 @@ WANTED_COURSE_LIST = [
 # 是否输出日志到文件
 # 日志文件路径：./runtime.logs
 OUT_PUT_LOG_TO_FILE_ENABLED = True
+

@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-21 17:07:49
+# @Last Modified time: 2019-02-21 18:03:40
 
 import requests
 import re
@@ -13,6 +13,7 @@ import time
 import random
 import threading # 多线程
 import base64 # 加密x_state
+
 
 from prettytable import PrettyTable  # 打印表格
 
@@ -347,8 +348,6 @@ class Student:
 			for i, courseName in enumerate(wantedCourseList):
 				thread = threading.Thread(target=self.chooseCourse, args=(i, courseName))
 				thread.start()
-			thread = threading.Thread(target=self.quit, args=())
-			thread.start()
 
 	def writeLogs(self, log, info=True, error=False):
 		if error:
