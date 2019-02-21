@@ -6,8 +6,6 @@
 # @Last Modified by  : jianhuChen
 # @Last Modified time: 2019-02-21 17:07:59
 
-import pygame
-
 # 导入配置信息
 from conf import *
 from Student import *

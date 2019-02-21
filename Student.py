@@ -6,7 +6,6 @@
 # @Last Modified by  : jianhuChen
 # @Last Modified time: 2019-02-21 17:07:49
 
-import sys
 import requests
 import re
 import os
