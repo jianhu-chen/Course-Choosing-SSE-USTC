@@ -4,14 +4,16 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-21 00:34:18
+# @Last Modified time: 2019-02-21 17:07:49
 
+import sys
 import requests
 import re
 import os
 import time 
 import random
 import threading # 多线程
+import base64 # 加密x_state
 
 from prettytable import PrettyTable  # 打印表格
 
@@ -146,28 +148,7 @@ class Student:
 		self.writeLogs('正在查询您的已选课程，请稍候...')
 		# 用已有登录状态的Cookie发送请求，获取目标页面源码
 		stuChoosedUrl = 'http://mis.sse.ustc.edu.cn/Teaching/CourseChooseInfo/ListStudentChoosed.aspx'
-		data = {
-			'__EVENTTARGET' : 'global$QueryForm$ctl00$ddlYearTerm',
-			'__EVENTARGUMENT' : '',
-			'__VIEWSTATE' : '/wEPDwUKMTY1MDg5NDA0NWQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgoFBmdsb2JhbAUQZ2xvYmFsJFF1ZXJ5Rm9ybQUkZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRUcmlnZ2VyU2VhcmNoBSJnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJGRkbFllYXJUZXJtBSdnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJHR4dENob29zZWRDcmVkaXQFI2dsb2JhbCRRdWVyeUZvcm0kY3RsMDAkdHh0TWF4Q3JlZGl0BRBnbG9iYWwkTWFpblBhbmVsBRlnbG9iYWwkTWFpblBhbmVsJEdyaWRMaXN0BQhXbmRNb2RhbAUNV25kTW9kYWxTbWFsbFpa0iUSyEAielWliBEkTe5bNJ4XM7afcwd3z9sFCGAp',
-			'global$QueryForm$ctl00$TriggerSearch' : '课程名称',
-			'global$QueryForm$ctl00$ddlYearTerm' : self.userYearTerm,
-			'X_CHANGED' : 'false',
-			'WndModal_Hidden' : 'true',
-			'WndModalSmall_Hidden' : 'true',
-			'global_QueryForm_Collapsed' : 'false',
-			'global_MainPanel_GridList_Collapsed' : 'false',
-			'global_MainPanel_GridList_SelectedRowIndexArray' : '',
-			'global_MainPanel_GridList_HiddenColumnIndexArray' : '',
-			'global_MainPanel_GridList_RowStates' : '[]',
-			'global_MainPanel_Collapsed' : 'false',
-			'global_Collapsed' : 'false',
-			'WndModal_Collapsed' : 'false',
-			'WndModalSmall_Collapsed' : 'false',
-			'X_STATE' : 'eyJnbG9iYWxfUXVlcnlGb3JtX2N0bDAwX2RkbFllYXJUZXJtIjp7IlhfSXRlbXMiOltbIjIwMTgtMiIsIjIwMTgtMiIsMV0sWyIyMDE4LTEiLCIyMDE4LTEiLDFdLFsiMjAxOC0wIiwiMjAxOC0wIiwxXSxbIjIwMTctMiIsIjIwMTctMiIsMV0sWyIyMDE3LTEiLCIyMDE3LTEiLDFdLFsiMjAxNy0wIiwiMjAxNy0wIiwxXSxbIjIwMTYtMiIsIjIwMTYtMiIsMV0sWyIyMDE2LTEiLCIyMDE2LTEiLDFdLFsiMjAxNi0wIiwiMjAxNi0wIiwxXSxbIjIwMTUtMiIsIjIwMTUtMiIsMV0sWyIyMDE1LTEiLCIyMDE1LTEiLDFdLFsiMjAxNS0wIiwiMjAxNS0wIiwxXSxbIjIwMTQtMiIsIjIwMTQtMiIsMV0sWyIyMDE0LTEiLCIyMDE0LTEiLDFdLFsiMjAxNC0wIiwiMjAxNC0wIiwxXSxbIjIwMTMtMiIsIjIwMTMtMiIsMV0sWyIyMDEzLTEiLCIyMDEzLTEiLDFdLFsiMjAxMy0wIiwiMjAxMy0wIiwxXSxbIjIwMTItMiIsIjIwMTItMiIsMV0sWyIyMDEyLTEiLCIyMDEyLTEiLDFdLFsiMjAxMS0yIiwiMjAxMS0yIiwxXSxbIjIwMTEtMSIsIjIwMTEtMSIsMV0sWyIyMDEwLTIiLCIyMDEwLTIiLDFdLFsiMjAxMC0xIiwiMjAxMC0xIiwxXSxbIjIwMDktMiIsIjIwMDktMiIsMV1dLCJTZWxlY3RlZFZhbHVlIjoiMjAxOC0yIn0sImdsb2JhbF9RdWVyeUZvcm1fY3RsMDBfdHh0Q2hvb3NlZENyZWRpdCI6eyJUZXh0IjoiMCJ9LCJnbG9iYWxfUXVlcnlGb3JtX2N0bDAwX3R4dE1heENyZWRpdCI6eyJUZXh0IjoiMjMifSwiZ2xvYmFsX01haW5QYW5lbF9HcmlkTGlzdCI6eyJYX1Jvd3MiOnsiVmFsdWVzIjpbXSwiRGF0YUtleXMiOltdfX19',
-			'X_AJAX' : 'false',
-		}
-		response = self.sess.post(stuChoosedUrl, data = data, headers=self.headers)
+		response = self.sess.post(stuChoosedUrl, headers=self.headers)
 		stuChoosedHtml = response.text.encode('utf-8')
 		return stuChoosedHtml
 
@@ -235,6 +216,7 @@ class Student:
 		}
 		response = self.sess.post(stuChooseListUrl, data=data, headers=self.headers)
 		stuChooseListHtml = response.text.encode('utf-8')
+		
 		with open('a.html', 'w') as f:
 			f.write(stuChooseListHtml)
 		return stuChooseListHtml
@@ -269,21 +251,21 @@ class Student:
 
 	def chooseCourse(self, index, courseName):
 		'''
-			作用：抢课
+			作用：抢某门课
 		'''
 		chooseCouserUrl = 'http://mis.sse.ustc.edu.cn/Teaching/CourseChooseInfo/ListStudentToChoose.aspx'
-		# 构造表单
+		# 构造搜索表单
 		data = {
-			'__EVENTTARGET' : 'global$MainPanel$GridList',
-			'__EVENTARGUMENT' : 'Command$0$10$Choose$',
-			'__VIEWSTATE' : '/wEPDwUKMTY1MDg5NDA0NWQYAQUeX19Db250cm9sc1JlcXVpcmVQb3N0QmFja0tleV9fFgoFBmdsb2JhbAUQZ2xvYmFsJFF1ZXJ5Rm9ybQUkZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRUcmlnZ2VyU2VhcmNoBSJnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJGRkbFllYXJUZXJtBSdnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJHR4dENob29zZWRDcmVkaXQFI2dsb2JhbCRRdWVyeUZvcm0kY3RsMDAkdHh0TWF4Q3JlZGl0BRBnbG9iYWwkTWFpblBhbmVsBRlnbG9iYWwkTWFpblBhbmVsJEdyaWRMaXN0BQhXbmRNb2RhbAUNV25kTW9kYWxTbWFsbFpa0iUSyEAielWliBEkTe5bNJ4XM7afcwd3z9sFCGAp',
-			'global$QueryForm$ctl00$TriggerSearch' : courseName,
-			'global$QueryForm$ctl00$ddlAddress' : self.userLocation,
-			'global$QueryForm$ctl00$ddlStudyYear' : self.userYear,
-			'global$QueryForm$ctl00$ddlTerm' : self.userTerm,
+			'__EVENTTARGET':'global$QueryForm$ctl00$TriggerSearch',
+			'__EVENTARGUMENT':'Trigger$2',
+			'__VIEWSTATE':'/wEPDwUKMTg4OTI4NDIxOA8WAh4JbWFqb3JUeXBlBRjlpKfmlbDmja7kuI7kurrlt6Xmmbrog71kGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYNBQZnbG9iYWwFEGdsb2JhbCRRdWVyeUZvcm0FJGdsb2JhbCRRdWVyeUZvcm0kY3RsMDAkVHJpZ2dlclNlYXJjaAUhZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRkZGxBZGRyZXNzBSNnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJGRkbFN0dWR5WWVhcgUeZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRkZGxUZXJtBSdnbG9iYWwkUXVlcnlGb3JtJGN0bDAxJHR4dENob29zZWRDcmVkaXQFI2dsb2JhbCRRdWVyeUZvcm0kY3RsMDEkdHh0TWF4Q3JlZGl0BRBnbG9iYWwkTWFpblBhbmVsBTVnbG9iYWwkTWFpblBhbmVsJGdyaWRBY3RUQmFyJGJ0blZpZXdNdWx0aXBsZUNob2ljZU9uZQUZZ2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdAUIV25kTW9kYWwFDFduZE1vZGFsX01DT5z07eospMaEA3q5abbcC1AtMyFQ1txhYgDjzNrw/fHC',
+			'global$QueryForm$ctl00$TriggerSearch': courseName,
+			'global$QueryForm$ctl00$ddlAddress':self.userLocation,
+			'global$QueryForm$ctl00$ddlStudyYear':self.userYear,
+			'global$QueryForm$ctl00$ddlTerm':self.userTerm,
 			'X_CHANGED' : 'false',
 			'WndModal_Hidden' : 'true',
-			'WndModalSmall_Hidden' : 'true',
+			'WndModal_MCO_Hidden' : 'true',
 			'global_QueryForm_Collapsed' : 'false',
 			'global_MainPanel_GridList_Collapsed' : 'false',
 			'global_MainPanel_GridList_SelectedRowIndexArray' : 0,
@@ -291,21 +273,71 @@ class Student:
 			'global_MainPanel_GridList_RowStates' : '[]',
 			'global_MainPanel_Collapsed' : 'false',
 			'global_Collapsed' : 'false',
+			'WndModal_MCO_Collapsed' : 'false',
 			'WndModal_Collapsed' : 'false',
+			'X_STATE' : 'eyJnbG9iYWxfUXVlcnlGb3JtX2N0bDAwX1RyaWdnZXJTZWFyY2giOnsiVGV4dCI6IumrmOe6p+WbvuWDjyIsIlNob3dUcmlnZ2VyMSI6dHJ1ZX0sImdsb2JhbF9RdWVyeUZvcm1fY3RsMDBfZGRsQWRkcmVzcyI6eyJYX0l0ZW1zIjpbWyLoi4/lt54iLCLoi4/lt54iLDFdLFsi5ZCI6IKlIiwi5ZCI6IKlIiwxXV0sIlNlbGVjdGVkVmFsdWUiOiLoi4/lt54ifSwiZ2xvYmFsX1F1ZXJ5Rm9ybV9jdGwwMF9kZGxTdHVkeVllYXIiOnsiWF9JdGVtcyI6W1siMjAxOCIsIjIwMTgiLDFdLFsiMjAxOSIsIjIwMTkiLDFdXSwiU2VsZWN0ZWRWYWx1ZSI6IjIwMTgifSwiZ2xvYmFsX1F1ZXJ5Rm9ybV9jdGwwMF9kZGxUZXJtIjp7IlNlbGVjdGVkVmFsdWUiOiIyIiwiWF9JdGVtcyI6W1siMCIsIjAiLDFdLFsiMSIsIjEiLDFdLFsiMiIsIjIiLDFdXX0sImdsb2JhbF9RdWVyeUZvcm1fY3RsMDFfdHh0Q2hvb3NlZENyZWRpdCI6eyJUZXh0IjoiMjAifSwiZ2xvYmFsX1F1ZXJ5Rm9ybV9jdGwwMV90eHRNYXhDcmVkaXQiOnsiVGV4dCI6IjIzIn0sImdsb2JhbF9NYWluUGFuZWxfZ3JpZEFjdFRCYXJfYnRuVmlld011bHRpcGxlQ2hvaWNlT25lIjp7Ik9uQ2xpZW50Q2xpY2siOiJYKCdXbmRNb2RhbF9NQ08nKS5ib3hfc2hvdygnL1RlYWNoaW5nL0NvdXJzZUNob29zZUluZm8vQ29tbWVuY2VkTXVsdGlwbGVDaG9pY2VPbmVDb3Vyc2VMaXN0LmFzcHg/SW5wdXRlZEtleT0lZTklYWIlOTglZTclYmElYTclZTUlOWIlYmUlZTUlODMlOGYmQWRkcmVzcz0lZTglOGIlOGYlZTUlYjclOWUmTWFqb3JUeXBlPSVlNSVhNCVhNyVlNiU5NSViMCVlNiU4ZCVhZSVlNCViOCU4ZSVlNCViYSViYSVlNSViNyVhNSVlNiU5OSViYSVlOCU4MyViZCZZZWFyVGVhbT0yMDE4LTImQ3VycmVudFVzZXJHdWlkPTExNTk5ZWNkLTc4MmEtNDY5NS1hYjlmLTFiYTlkYWYxMzAwYycsJ+afpeeci+WkmumAieS4gOivvueoiycpO3JldHVybiBmYWxzZTsifSwiZ2xvYmFsX01haW5QYW5lbF9HcmlkTGlzdCI6eyJYX1Jvd3MiOnsiVmFsdWVzIjpbWyJTRTA1NDAzYSIsIjxhIGhyZWY9XCJqYXZhc2NyaXB0OjtcIiBvbmNsaWNrPVwiamF2YXNjcmlwdDpYKCYjMzk7V25kTW9kYWwmIzM5OykuYm94X3Nob3coJiMzOTsvVGVhY2hpbmcvQ291cnNlSW5mby9WaWV3QnlDb3Vyc2VJRC5hc3B4P0NvdXJzZUlEPVNFMDU0MDNhJiMzOTssJiMzOTvpq5jnuqflm77lg4/lpITnkIbkuI7liIbmnpAt6K+m57uGJiMzOTspO1wiPumrmOe6p+WbvuWDj+WkhOeQhuS4juWIhuaekDwvYT4iLCIzIiwi6IuP5bee54+tIiwi55m95aSpKC3mmoLml6Dlt6Xlj7ctKSIsIjEtOCDlkagv5ZGo5LqML+S4i+WNiCg277yMN++8jDgpL+aYjuW+t+alvEMyNDBfMS04IOWRqC/lkajkuIkv5LiK5Y2IKDHvvIwy77yMMykv5piO5b635qW8QzI0MCIsIjIwMTktMi0yMSIsIjIwMTktMy00IiwiMTIwIiwiMTIwIiwiPGEgaHJlZj1cImphdmFzY3JpcHQ6O1wiIG9uY2xpY2s9XCJFeHQuZGVmZXIoZnVuY3Rpb24oKXt3aW5kb3cuRXh0Lk1lc3NhZ2VCb3guc2hvdyh7dGl0bGU6JiMzOTvmj5DnpLomIzM5Oyxtc2c6JiMzOTvnoa7lrprpgInor74mIzM5OyxidXR0b25zOkV4dC5NZXNzYWdlQm94Lk9LQ0FOQ0VMLGljb246RXh0Lk1lc3NhZ2VCb3guSU5GTyxmbjpmdW5jdGlvbihidG4pe2lmKGJ0bj09JiMzOTtjYW5jZWwmIzM5Oyl7cmV0dXJuIGZhbHNlO31lbHNle19fZG9Qb3N0QmFjaygmIzM5O2dsb2JhbCRNYWluUGFuZWwkR3JpZExpc3QmIzM5OywmIzM5O0NvbW1hbmQkMCQxMCRTZWxlY3RDb3Vyc2UkJiMzOTspO319fSk7fSwwKTtYLnV0aWwuc3RvcEV2ZW50UHJvcGFnYXRpb24uYXBwbHkobnVsbCwgYXJndW1lbnRzKTtcIj7pgInmi6nmraTor748L2E+Il1dLCJEYXRhS2V5cyI6W1siMjU2OTRkZGEtZWFlNy00NTk3LWE1YjgtNzkwN2RmODlmZGYxIl1dfSwiUmVjb3JkQ291bnQiOjEsIlhfU3RhdGVzIjpbW11dLCJTZWxlY3RlZFJvd0luZGV4QXJyYXkiOltdfX0=',
+			'X_AJAX':'false'
+		}
+		# 搜索课程，获取X_STATE
+		response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
+		result = response.text.encode('utf-8')
+		searchPattern = re.compile(r'x_state:(.*?),id:', re.S)
+		x_stateList = searchPattern.findall(result)
+		x_state = '{"global_QueryForm_ctl00_TriggerSearch":'+x_stateList[0]+',"global_QueryForm_ctl00_ddlAddress":'+x_stateList[1]+',"global_QueryForm_ctl00_ddlStudyYear":'+x_stateList[2]+',"global_QueryForm_ctl00_ddlTerm":'+x_stateList[3]+',"global_QueryForm_ctl01_txtChoosedCredit":'+x_stateList[4]+',"global_QueryForm_ctl01_txtMaxCredit":'+x_stateList[5]+',"global_MainPanel_gridActTBar_btnViewMultipleChoiceOne":'+x_stateList[9]+',"global_MainPanel_GridList":'+x_stateList[13]+'}'
+		data = {
+			'__EVENTTARGET' : 'global$MainPanel$GridList',
+			'__EVENTARGUMENT' : 'Command$0$10$SelectCourse$',
+			'__VIEWSTATE' : '/wEPDwUKMTg4OTI4NDIxOA8WAh4JbWFqb3JUeXBlBRjlpKfmlbDmja7kuI7kurrlt6Xmmbrog71kGAEFHl9fQ29udHJvbHNSZXF1aXJlUG9zdEJhY2tLZXlfXxYNBQZnbG9iYWwFEGdsb2JhbCRRdWVyeUZvcm0FJGdsb2JhbCRRdWVyeUZvcm0kY3RsMDAkVHJpZ2dlclNlYXJjaAUhZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRkZGxBZGRyZXNzBSNnbG9iYWwkUXVlcnlGb3JtJGN0bDAwJGRkbFN0dWR5WWVhcgUeZ2xvYmFsJFF1ZXJ5Rm9ybSRjdGwwMCRkZGxUZXJtBSdnbG9iYWwkUXVlcnlGb3JtJGN0bDAxJHR4dENob29zZWRDcmVkaXQFI2dsb2JhbCRRdWVyeUZvcm0kY3RsMDEkdHh0TWF4Q3JlZGl0BRBnbG9iYWwkTWFpblBhbmVsBTVnbG9iYWwkTWFpblBhbmVsJGdyaWRBY3RUQmFyJGJ0blZpZXdNdWx0aXBsZUNob2ljZU9uZQUZZ2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdAUIV25kTW9kYWwFDFduZE1vZGFsX01DT5z07eospMaEA3q5abbcC1AtMyFQ1txhYgDjzNrw/fHC',
+			'global$QueryForm$ctl00$TriggerSearch' : courseName,
+			'global$QueryForm$ctl00$ddlAddress' : self.userLocation,
+			'global$QueryForm$ctl00$ddlStudyYear' : self.userYear,
+			'global$QueryForm$ctl00$ddlTerm' : self.userTerm,
+			'X_CHANGED' : 'false',
+			'WndModal_Hidden' : 'true',
+			'WndModal_MCO_Hidden' : 'true',
+			'global_QueryForm_Collapsed' : 'false',
+			'global_MainPanel_GridList_Collapsed' : 'false',
+			'global_MainPanel_GridList_SelectedRowIndexArray' : 0,
+			'global_MainPanel_GridList_HiddenColumnIndexArray' : '',
+			'global_MainPanel_GridList_RowStates' : '[]',
+			'global_MainPanel_Collapsed' : 'false',
+			'global_Collapsed' : 'false',
+			'WndModal_MCO_Collapsed' : 'false',
 			'WndModalSmall_Collapsed' : 'false',
-			'X_STATE' : 'eyJnbG9iYWxfUXVlcnlGb3JtX2N0bDAwX2RkbFllYXJUZXJtIjp7IlhfSXRlbXMiOltbIjIwMTgtMSIsIjIwMTgtMSIsMV0sWyIyMDE4LTAiLCIyMDE4LTAiLDFdLFsiMjAxNy0yIiwiMjAxNy0yIiwxXSxbIjIwMTctMSIsIjIwMTctMSIsMV0sWyIyMDE3LTAiLCIyMDE3LTAiLDFdLFsiMjAxNi0yIiwiMjAxNi0yIiwxXSxbIjIwMTYtMSIsIjIwMTYtMSIsMV0sWyIyMDE2LTAiLCIyMDE2LTAiLDFdLFsiMjAxNS0yIiwiMjAxNS0yIiwxXSxbIjIwMTUtMSIsIjIwMTUtMSIsMV0sWyIyMDE1LTAiLCIyMDE1LTAiLDFdLFsiMjAxNC0yIiwiMjAxNC0yIiwxXSxbIjIwMTQtMSIsIjIwMTQtMSIsMV0sWyIyMDE0LTAiLCIyMDE0LTAiLDFdLFsiMjAxMy0yIiwiMjAxMy0yIiwxXSxbIjIwMTMtMSIsIjIwMTMtMSIsMV0sWyIyMDEzLTAiLCIyMDEzLTAiLDFdLFsiMjAxMi0yIiwiMjAxMi0yIiwxXSxbIjIwMTItMSIsIjIwMTItMSIsMV0sWyIyMDExLTIiLCIyMDExLTIiLDFdLFsiMjAxMS0xIiwiMjAxMS0xIiwxXSxbIjIwMTAtMiIsIjIwMTAtMiIsMV0sWyIyMDEwLTEiLCIyMDEwLTEiLDFdLFsiMjAwOS0yIiwiMjAwOS0yIiwxXV0sIlNlbGVjdGVkVmFsdWUiOiIyMDE4LTEifSwiZ2xvYmFsX1F1ZXJ5Rm9ybV9jdGwwMF90eHRDaG9vc2VkQ3JlZGl0Ijp7IlRleHQiOiIxNiJ9LCJnbG9iYWxfUXVlcnlGb3JtX2N0bDAwX3R4dE1heENyZWRpdCI6eyJUZXh0IjoiMTgifSwiZ2xvYmFsX01haW5QYW5lbF9HcmlkTGlzdCI6eyJYX1Jvd3MiOnsiVmFsdWVzIjpbWyJTRTA1MTAyYiIsIjxhIGhyZWY9XCJqYXZhc2NyaXB0OjtcIiBvbmNsaWNrPVwiamF2YXNjcmlwdDpYKCYjMzk7V25kTW9kYWwmIzM5OykuYm94X3Nob3coJiMzOTsvVGVhY2hpbmcvQ291cnNlSW5mby9WaWV3QnlDb3Vyc2VJRC5hc3B4P0NvdXJzZUlEPVNFMDUxMDJiJiMzOTssJiMzOTvlt6XnqIvnoZXlo6vln7rnoYDoi7Hor60t6K+m57uGJiMzOTspO1wiPuW3peeoi+ehleWjq+WfuuehgOiLseivrTwvYT4iLCIyIiwi6IuP5beeNOePrSIsIuWImOWzsDIyNSgt5pqC5peg5bel5Y+3LSkiLCIyLTQg5ZGoL+WRqOS4gC/kuIrljYgoNO+8jDUpL+aAnei0pOalvDIwMl82LTExIOWRqC/lkajkuIAv5LiK5Y2IKDTvvIw1KS/mgJ3otKTmpbwyMDJfMTItMTMg5ZGoL+WRqOS4gC/mmZrkuIooMTHvvIwxMu+8jDEzKS/mgJ3otKTmpbwyMDJfMi00IOWRqC/lkajkuIkv5LiK5Y2IKDHvvIwy77yMMykv5oCd6LSk5qW8MjAyXzYtMTEg5ZGoL+WRqOS4iS/kuIrljYgoMe+8jDLvvIwzKS/mgJ3otKTmpbwyMDJfMTItMTMg5ZGoL+WRqOS6jC/kuIvljYgoOe+8jDEwKS/mgJ3otKTmpbwyMDIiLCIyMDE4LTktOSIsIjIwMTgtOS0xNyIsIjIwMTgtOS0xNyIsIjM3IiwiNDAiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cIkV4dC5kZWZlcihmdW5jdGlvbigpe3dpbmRvdy5FeHQuTWVzc2FnZUJveC5zaG93KHt0aXRsZTomIzM5O+aPkOekuiYjMzk7LG1zZzomIzM5O+ehruWumuWPlua2iCYjMzk7LGJ1dHRvbnM6RXh0Lk1lc3NhZ2VCb3guT0tDQU5DRUwsaWNvbjpFeHQuTWVzc2FnZUJveC5JTkZPLGZuOmZ1bmN0aW9uKGJ0bil7aWYoYnRuPT0mIzM5O2NhbmNlbCYjMzk7KXtyZXR1cm4gZmFsc2U7fWVsc2V7X19kb1Bvc3RCYWNrKCYjMzk7Z2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdCYjMzk7LCYjMzk7Q29tbWFuZCQwJDExJENhbmNlbENob29zZSQmIzM5Oyk7fX19KTt9LDApO1gudXRpbC5zdG9wRXZlbnRQcm9wYWdhdGlvbi5hcHBseShudWxsLCBhcmd1bWVudHMpO1wiPuWPlua2iOmAieivvjwvYT4iXSxbIlNFMDUxMTEiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cImphdmFzY3JpcHQ6WCgmIzM5O1duZE1vZGFsJiMzOTspLmJveF9zaG93KCYjMzk7L1RlYWNoaW5nL0NvdXJzZUluZm8vVmlld0J5Q291cnNlSUQuYXNweD9Db3Vyc2VJRD1TRTA1MTExJiMzOTssJiMzOTvnrpfms5Xorr7orqHkuI7liIbmnpAt6K+m57uGJiMzOTspO1wiPueul+azleiuvuiuoeS4juWIhuaekDwvYT4iLCIzIiwi6IuP5bee54+tIiwi5byg5puZKOaaguaXoOW3peWPtykiLCI2LTE3IOWRqC/lkajkupQv5LiL5Y2IKDbvvIw377yMOO+8jDkpL+aYjuW+t+alvEMyMzlfMi00IOWRqC/lkajkupQv5LiL5Y2IKDbvvIw377yMOO+8jDkpL+aYjuW+t+alvEMyMzkiLCIyMDE4LTktOCIsIjIwMTgtOS0yNCIsIjIwMTgtOS0yNCIsIjEzNCIsIjEyMCIsIjxhIGhyZWY9XCJqYXZhc2NyaXB0OjtcIiBvbmNsaWNrPVwiRXh0LmRlZmVyKGZ1bmN0aW9uKCl7d2luZG93LkV4dC5NZXNzYWdlQm94LnNob3coe3RpdGxlOiYjMzk75o+Q56S6JiMzOTssbXNnOiYjMzk756Gu5a6a5Y+W5raIJiMzOTssYnV0dG9uczpFeHQuTWVzc2FnZUJveC5PS0NBTkNFTCxpY29uOkV4dC5NZXNzYWdlQm94LklORk8sZm46ZnVuY3Rpb24oYnRuKXtpZihidG49PSYjMzk7Y2FuY2VsJiMzOTspe3JldHVybiBmYWxzZTt9ZWxzZXtfX2RvUG9zdEJhY2soJiMzOTtnbG9iYWwkTWFpblBhbmVsJEdyaWRMaXN0JiMzOTssJiMzOTtDb21tYW5kJDEkMTEkQ2FuY2VsQ2hvb3NlJCYjMzk7KTt9fX0pO30sMCk7WC51dGlsLnN0b3BFdmVudFByb3BhZ2F0aW9uLmFwcGx5KG51bGwsIGFyZ3VtZW50cyk7XCI+5Y+W5raI6YCJ6K++PC9hPiJdLFsiU0UwNTIzN2EiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cImphdmFzY3JpcHQ6WCgmIzM5O1duZE1vZGFsJiMzOTspLmJveF9zaG93KCYjMzk7L1RlYWNoaW5nL0NvdXJzZUluZm8vVmlld0J5Q291cnNlSUQuYXNweD9Db3Vyc2VJRD1TRTA1MjM3YSYjMzk7LCYjMzk757O757uf5bu65qih5LiO5YiG5p6QLeivpue7hiYjMzk7KTtcIj7ns7vnu5/lu7rmqKHkuI7liIbmnpA8L2E+IiwiMyIsIuiLj+W3nuePrSIsIumZiOWNmigt5pqC5peg5bel5Y+3LSkiLCIxMi0xOSDlkagv5ZGo5LiJL+S4iuWNiCgx77yMMu+8jDPvvIw0KS/mmI7lvrfmpbxDMjM5XzEyLTE5IOWRqC/lkajkuIAv5LiK5Y2IKDTvvIw1KS/mmI7lvrfmpbxDMjM5IiwiMjAxOC05LTgiLCIyMDE4LTExLTI2IiwiMjAxOC0xMS0yNiIsIjEyNSIsIjEyMCIsIjxhIGhyZWY9XCJqYXZhc2NyaXB0OjtcIiBvbmNsaWNrPVwiRXh0LmRlZmVyKGZ1bmN0aW9uKCl7d2luZG93LkV4dC5NZXNzYWdlQm94LnNob3coe3RpdGxlOiYjMzk75o+Q56S6JiMzOTssbXNnOiYjMzk756Gu5a6a5Y+W5raIJiMzOTssYnV0dG9uczpFeHQuTWVzc2FnZUJveC5PS0NBTkNFTCxpY29uOkV4dC5NZXNzYWdlQm94LklORk8sZm46ZnVuY3Rpb24oYnRuKXtpZihidG49PSYjMzk7Y2FuY2VsJiMzOTspe3JldHVybiBmYWxzZTt9ZWxzZXtfX2RvUG9zdEJhY2soJiMzOTtnbG9iYWwkTWFpblBhbmVsJEdyaWRMaXN0JiMzOTssJiMzOTtDb21tYW5kJDIkMTEkQ2FuY2VsQ2hvb3NlJCYjMzk7KTt9fX0pO30sMCk7WC51dGlsLnN0b3BFdmVudFByb3BhZ2F0aW9uLmFwcGx5KG51bGwsIGFyZ3VtZW50cyk7XCI+5Y+W5raI6YCJ6K++PC9hPiJdLFsiU0UwNTQyM2EiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cImphdmFzY3JpcHQ6WCgmIzM5O1duZE1vZGFsJiMzOTspLmJveF9zaG93KCYjMzk7L1RlYWNoaW5nL0NvdXJzZUluZm8vVmlld0J5Q291cnNlSUQuYXNweD9Db3Vyc2VJRD1TRTA1NDIzYSYjMzk7LCYjMzk75py65Zmo5a2m5LmgLeivpue7hiYjMzk7KTtcIj7mnLrlmajlrabkuaA8L2E+IiwiMyIsIuiLj+W3nuePrSIsIuW8oOabmSjmmoLml6Dlt6Xlj7cpIiwiMTItMTkg5ZGoL+WRqOS4iS/kuIvljYgoNu+8jDfvvIw4KS/mmI7lvrfmpbxDMjQwXzEzLTIwIOWRqC/lkajml6Uv5LiL5Y2IKDbvvIw377yMOCkv5piO5b635qW8QzI0MCIsIjIwMTgtOS04IiwiMjAxOC0xMS0yNiIsIjIwMTgtMTEtMjYiLCIxMDMiLCIxMDAiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cIkV4dC5kZWZlcihmdW5jdGlvbigpe3dpbmRvdy5FeHQuTWVzc2FnZUJveC5zaG93KHt0aXRsZTomIzM5O+aPkOekuiYjMzk7LG1zZzomIzM5O+ehruWumuWPlua2iCYjMzk7LGJ1dHRvbnM6RXh0Lk1lc3NhZ2VCb3guT0tDQU5DRUwsaWNvbjpFeHQuTWVzc2FnZUJveC5JTkZPLGZuOmZ1bmN0aW9uKGJ0bil7aWYoYnRuPT0mIzM5O2NhbmNlbCYjMzk7KXtyZXR1cm4gZmFsc2U7fWVsc2V7X19kb1Bvc3RCYWNrKCYjMzk7Z2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdCYjMzk7LCYjMzk7Q29tbWFuZCQzJDExJENhbmNlbENob29zZSQmIzM5Oyk7fX19KTt9LDApO1gudXRpbC5zdG9wRXZlbnRQcm9wYWdhdGlvbi5hcHBseShudWxsLCBhcmd1bWVudHMpO1wiPuWPlua2iOmAieivvjwvYT4iXSxbIlNFMDU0MjQiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cImphdmFzY3JpcHQ6WCgmIzM5O1duZE1vZGFsJiMzOTspLmJveF9zaG93KCYjMzk7L1RlYWNoaW5nL0NvdXJzZUluZm8vVmlld0J5Q291cnNlSUQuYXNweD9Db3Vyc2VJRD1TRTA1NDI0JiMzOTssJiMzOTvkurrlt6Xmmbrog70t6K+m57uGJiMzOTspO1wiPuS6uuW3peaZuuiDvTwvYT4iLCIzIiwi6IuP5bee54+tIiwi5L2Z6Imz546uKOaaguaXoOW3peWPtykiLCI2LTEwIOWRqC/lkajkuowv5LiK5Y2IKDHvvIwy77yMMykv5piO5b635qW8QzI0MF82LTkg5ZGoL+WRqOWFrS/kuIrljYgoM++8jDTvvIw1KS/mmI7lvrfmpbxDMjQwXzItNCDlkagv5ZGo5LqML+S4iuWNiCgx77yMMu+8jDMpL+aYjuW+t+alvEMyNDBfMTEtMTQg5ZGoL+WRqOWFrS/kuIrljYgoM++8jDTvvIw1KS/mmI7lvrfmpbxDMjQwIiwiMjAxOC05LTgiLCIyMDE4LTktMjQiLCIyMDE4LTktMjQiLCIxMDgiLCIxMDAiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cIkV4dC5kZWZlcihmdW5jdGlvbigpe3dpbmRvdy5FeHQuTWVzc2FnZUJveC5zaG93KHt0aXRsZTomIzM5O+aPkOekuiYjMzk7LG1zZzomIzM5O+ehruWumuWPlua2iCYjMzk7LGJ1dHRvbnM6RXh0Lk1lc3NhZ2VCb3guT0tDQU5DRUwsaWNvbjpFeHQuTWVzc2FnZUJveC5JTkZPLGZuOmZ1bmN0aW9uKGJ0bil7aWYoYnRuPT0mIzM5O2NhbmNlbCYjMzk7KXtyZXR1cm4gZmFsc2U7fWVsc2V7X19kb1Bvc3RCYWNrKCYjMzk7Z2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdCYjMzk7LCYjMzk7Q29tbWFuZCQ0JDExJENhbmNlbENob29zZSQmIzM5Oyk7fX19KTt9LDApO1gudXRpbC5zdG9wRXZlbnRQcm9wYWdhdGlvbi5hcHBseShudWxsLCBhcmd1bWVudHMpO1wiPuWPlua2iOmAieivvjwvYT4iXSxbIlNFMDU3MTRhIiwiPGEgaHJlZj1cImphdmFzY3JpcHQ6O1wiIG9uY2xpY2s9XCJqYXZhc2NyaXB0OlgoJiMzOTtXbmRNb2RhbCYjMzk7KS5ib3hfc2hvdygmIzM5Oy9UZWFjaGluZy9Db3Vyc2VJbmZvL1ZpZXdCeUNvdXJzZUlELmFzcHg/Q291cnNlSUQ9U0UwNTcxNGEmIzM5OywmIzM5O+W3peeoi+WunumqjOe7vOWQiC3or6bnu4YmIzM5Oyk7XCI+5bel56iL5a6e6aqM57u85ZCIPC9hPiIsIjAuNSIsIuiLj+W3nuePrSIsIuS4geeukCgwNjUwNSkiLCIxLTEg5ZGoL+WRqOS4gC/kuIrljYgoMe+8jDIpL+aYjuW+t+alvEMyMzkiLCIyMDE4LTktOCIsIjIwMTgtMTEtMjYiLCIyMDE4LTExLTI2IiwiNDQyIiwiNDQ1IiwiPGEgaHJlZj1cImphdmFzY3JpcHQ6O1wiIG9uY2xpY2s9XCJFeHQuZGVmZXIoZnVuY3Rpb24oKXt3aW5kb3cuRXh0Lk1lc3NhZ2VCb3guc2hvdyh7dGl0bGU6JiMzOTvmj5DnpLomIzM5Oyxtc2c6JiMzOTvnoa7lrprlj5bmtogmIzM5OyxidXR0b25zOkV4dC5NZXNzYWdlQm94Lk9LQ0FOQ0VMLGljb246RXh0Lk1lc3NhZ2VCb3guSU5GTyxmbjpmdW5jdGlvbihidG4pe2lmKGJ0bj09JiMzOTtjYW5jZWwmIzM5Oyl7cmV0dXJuIGZhbHNlO31lbHNle19fZG9Qb3N0QmFjaygmIzM5O2dsb2JhbCRNYWluUGFuZWwkR3JpZExpc3QmIzM5OywmIzM5O0NvbW1hbmQkNSQxMSRDYW5jZWxDaG9vc2UkJiMzOTspO319fSk7fSwwKTtYLnV0aWwuc3RvcEV2ZW50UHJvcGFnYXRpb24uYXBwbHkobnVsbCwgYXJndW1lbnRzKTtcIj7lj5bmtojpgInor748L2E+Il0sWyJTRTA1NzIwIiwiPGEgaHJlZj1cImphdmFzY3JpcHQ6O1wiIG9uY2xpY2s9XCJqYXZhc2NyaXB0OlgoJiMzOTtXbmRNb2RhbCYjMzk7KS5ib3hfc2hvdygmIzM5Oy9UZWFjaGluZy9Db3Vyc2VJbmZvL1ZpZXdCeUNvdXJzZUlELmFzcHg/Q291cnNlSUQ9U0UwNTcyMCYjMzk7LCYjMzk7UHl0aG9u56iL5bqP6K6+6K6hLeivpue7hiYjMzk7KTtcIj5QeXRob27nqIvluo/orr7orqE8L2E+IiwiMC41Iiwi6IuP5bee54+tIiwi57+f5bu66IqzKOaaguaXoOW3peWPtykiLCI2LTEwIOWRqC/lkajkupQv5LiK5Y2IKDTvvIw1KS/mmI7lvrfmpbxDMTEyXzItNCDlkagv5ZGo5LqUL+S4iuWNiCg077yMNSkv5piO5b635qW8QzExMl8yLTQg5ZGoL+WRqOWbmy/kuIvljYgoNu+8jDfvvIw4KS/mmI7lvrfmpbxDMTEyXzYtMTAg5ZGoL+WRqOWbmy/kuIvljYgoNu+8jDfvvIw4KS/mmI7lvrfmpbxDMTEyIiwiMjAxOC05LTgiLCIyMDE4LTktMTciLCIyMDE4LTktMTciLCIxMjAiLCIxMjAiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cIkV4dC5kZWZlcihmdW5jdGlvbigpe3dpbmRvdy5FeHQuTWVzc2FnZUJveC5zaG93KHt0aXRsZTomIzM5O+aPkOekuiYjMzk7LG1zZzomIzM5O+ehruWumuWPlua2iCYjMzk7LGJ1dHRvbnM6RXh0Lk1lc3NhZ2VCb3guT0tDQU5DRUwsaWNvbjpFeHQuTWVzc2FnZUJveC5JTkZPLGZuOmZ1bmN0aW9uKGJ0bil7aWYoYnRuPT0mIzM5O2NhbmNlbCYjMzk7KXtyZXR1cm4gZmFsc2U7fWVsc2V7X19kb1Bvc3RCYWNrKCYjMzk7Z2xvYmFsJE1haW5QYW5lbCRHcmlkTGlzdCYjMzk7LCYjMzk7Q29tbWFuZCQ2JDExJENhbmNlbENob29zZSQmIzM5Oyk7fX19KTt9LDApO1gudXRpbC5zdG9wRXZlbnRQcm9wYWdhdGlvbi5hcHBseShudWxsLCBhcmd1bWVudHMpO1wiPuWPlua2iOmAieivvjwvYT4iXSxbIlNFMDU3MjEiLCI8YSBocmVmPVwiamF2YXNjcmlwdDo7XCIgb25jbGljaz1cImphdmFzY3JpcHQ6WCgmIzM5O1duZE1vZGFsJiMzOTspLmJveF9zaG93KCYjMzk7L1RlYWNoaW5nL0NvdXJzZUluZm8vVmlld0J5Q291cnNlSUQuYXNweD9Db3Vyc2VJRD1TRTA1NzIxJiMzOTssJiMzOTvmt7HluqblrabkuaDlrp7ot7Ut6K+m57uGJiMzOTspO1wiPua3seW6puWtpuS5oOWunui3tTwvYT4iLCIxIiwi6IuP5bee54+tIiwi5p2o5bOwKDA5NzU5KSIsIjEyLTE5IOWRqC/lkajkupQv5LiK5Y2IKDTvvIw1KS/mlY/lrabmpbwxMDJfMTItMTkg5ZGoL+WRqOWbmy/kuIvljYgoNu+8jDfvvIw4KS/mlY/lrabmpbwxMDIiLCIyMDE4LTktOCIsIjIwMTgtMTEtMjYiLCIyMDE4LTExLTI2IiwiMTc4IiwiMTcwIiwiPGEgaHJlZj1cImphdmFzY3JpcHQ6O1wiIG9uY2xpY2s9XCJFeHQuZGVmZXIoZnVuY3Rpb24oKXt3aW5kb3cuRXh0Lk1lc3NhZ2VCb3guc2hvdyh7dGl0bGU6JiMzOTvmj5DnpLomIzM5Oyxtc2c6JiMzOTvnoa7lrprlj5bmtogmIzM5OyxidXR0b25zOkV4dC5NZXNzYWdlQm94Lk9LQ0FOQ0VMLGljb246RXh0Lk1lc3NhZ2VCb3guSU5GTyxmbjpmdW5jdGlvbihidG4pe2lmKGJ0bj09JiMzOTtjYW5jZWwmIzM5Oyl7cmV0dXJuIGZhbHNlO31lbHNle19fZG9Qb3N0QmFjaygmIzM5O2dsb2JhbCRNYWluUGFuZWwkR3JpZExpc3QmIzM5OywmIzM5O0NvbW1hbmQkNyQxMSRDYW5jZWxDaG9vc2UkJiMzOTspO319fSk7fSwwKTtYLnV0aWwuc3RvcEV2ZW50UHJvcGFnYXRpb24uYXBwbHkobnVsbCwgYXJndW1lbnRzKTtcIj7lj5bmtojpgInor748L2E+Il1dLCJEYXRhS2V5cyI6W1siYTlhZTFiYjAtZmRmMy00ZTVlLWE1M2ItODdhYzZlMDAyOTc1Il0sWyI0MzVjZDBiYy1jMWFhLTQ4ZWUtODc4MS0xOWE5ZWZkNzJkZmUiXSxbIjg5OWZlNzczLWUwNzktNDdiZS04MWU1LWI5OWQ3M2UyMTk3OCJdLFsiYjFiNzJhYzMtZjMxNS00MzU4LWFlNGYtODRkNmEzN2Q4Zjk3Il0sWyJhYjdkMTNlOC02NDRmLTRiNDAtODMzMi01MTUzMjdkMzM1ZjEiXSxbIjkwY2FmMDI2LTI4NzItNGQ3ZC04ZjQ3LTY5ZWU0ZGE2ZjhlNiJdLFsiYjhlMDljMmMtNWZmMy00ZjkxLWJhYTYtNjljN2FhYzk1YWJjIl0sWyJkODNjZGNlMy1hMTIxLTRmMDItYjA0ZC00ZjRkNDgxZmQ1YWMiXV19LCJSZWNvcmRDb3VudCI6OCwiWF9TdGF0ZXMiOltbXSxbXSxbXSxbXSxbXSxbXSxbXSxbXV19fQ==',
+			'X_STATE' : base64.b64encode(x_state),
 			'X_AJAX' : 'true',
 		}
-		
 		# 线程抢课
 		while True:
 			# 发送抢课需要的POST数据，获取登录后的Cookie(保存在sess里)
 			response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
 			result = response.text.encode('utf-8')
-			self.writeLogs('线程{}：正在抢课【{}】\t结果：{}'.format(index, courseName, result))
-			sleepTime = random.uniform(1.1,3.2)
-			self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, sleepTime))
-			time.sleep(sleepTime) # 休息一会儿
+			try:
+				result = re.compile(r'alert\(\'(.*)\'\)',re.S).findall(result)[0]
+				# 一个元祖，里面包含该课程的 已选人数/最大人数
+				leavingsCourse = re.compile(r',"(\d*)","(\d*)","<a',re.S).findall(x_stateList[13])[0]
+			except IndexError:
+				self.writeLogs('线程{}：正在抢课【{}】\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, courseName), error=True)
+				self.writeLogs('线程{}：关闭...'.format(index))
+				break
+			else:
+				self.writeLogs('线程{}：正在抢课【{}】\t结果：【{}】| {}'.format(index, courseName, result, leavingsCourse))
+				# 选课成功，关闭线程
+				if result == '选课成功':
+					self.writeLogs('线程{}：正在打印已选课程列表...'.format(index))
+					self.printStuChoosed() # 打印已选课程信息
+					self.writeLogs('线程{}：关闭...'.format(index))
+					break# 关闭该线程
+				# 满了，继续抢
+				elif result == '该课程已选满，请选择其它课程！':
+					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
+					sleepTime = random.uniform(1.1,3.2)
+					self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, sleepTime))
+					time.sleep(sleepTime) # 休息一会儿
+				else:
+					self.writeLogs('线程{}：抢课【{}】时发生错误...错误信息：{}'.format(index, courseName, result))
+					self.writeLogs('线程{}：关闭...'.format(index))
+					break
 
 	def chooseCourseMultiThread(self, wantedCourseList):
 		'''多线程抢课'''
@@ -316,6 +348,8 @@ class Student:
 			for i, courseName in enumerate(wantedCourseList):
 				thread = threading.Thread(target=self.chooseCourse, args=(i, courseName))
 				thread.start()
+			thread = threading.Thread(target=self.quit, args=())
+			thread.start()
 
 	def writeLogs(self, log, info=True, error=False):
 		if error:
