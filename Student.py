@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-21 18:03:40
+# @Last Modified time: 2019-02-21 18:22:47
 
 import requests
 import re
@@ -19,7 +19,7 @@ from prettytable import PrettyTable  # 打印表格
 
 
 class Student:
-	def __init__(self, userAccount, userLocation, userYear, userTerm):
+	def __init__(self, userAccount, userLocation, userYear, userTerm, sleepTime):
 		'''
 			作用：初始化用户信息
 		'''
@@ -30,6 +30,7 @@ class Student:
 		self.userYear = userYear
 		self.userTerm = userTerm
 		self.userYearTerm = userYear + '-' + userTerm
+		self.sleepTime = sleepTime
 		# 构建一个Session对象，可以保存页面Cookie
 		self.sess = requests.Session()
 		# 构造请求报头
@@ -331,9 +332,9 @@ class Student:
 				# 满了，继续抢
 				elif result == '该课程已选满，请选择其它课程！':
 					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
-					sleepTime = random.uniform(1.1,3.2)
-					self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, sleepTime))
-					time.sleep(sleepTime) # 休息一会儿
+					threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
+					self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, threadSleepTime))
+					time.sleep(threadSleepTime) # 休息一会儿
 				else:
 					self.writeLogs('线程{}：抢课【{}】时发生错误...错误信息：{}'.format(index, courseName, result))
 					self.writeLogs('线程{}：关闭...'.format(index))
