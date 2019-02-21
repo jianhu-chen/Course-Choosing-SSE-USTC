@@ -18,25 +18,3 @@ pip install prettytable # 美美地打印表格
 ## 适用人员
 
 科大软件学院18级研究生
-
-
-
-## 使用方法
-
-- 将项目克隆到本地
-
-  ```bash
-  git clone https://github.com/jianhuchen/Course-Choosing-SSE-USTC.git
-  ```
-
-- 修改配置文件`conf.py`
-
-- 在项目根目录运行：
-
-  ```shell
-  python main.py
-  ```
-
-> **退出方法**
->
-> 使用`top`命令，找到此程序的PID（如：10036），再用`kill 10036`杀死进程
