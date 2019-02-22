@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-21 18:22:47
+# @Last Modified time: 2019-02-22 21:29:12
 
 import requests
 import re
@@ -19,7 +19,7 @@ from prettytable import PrettyTable  # 打印表格
 
 
 class Student:
-	def __init__(self, userAccount, userLocation, userYear, userTerm, sleepTime):
+	def __init__(self, userAccount, userLocation, userYear, userTerm, sleepTime, errorKeepChoose=False, fullKeepChoose=True):
 		'''
 			作用：初始化用户信息
 		'''
@@ -31,6 +31,8 @@ class Student:
 		self.userTerm = userTerm
 		self.userYearTerm = userYear + '-' + userTerm
 		self.sleepTime = sleepTime
+		self.errorKeepChoose = errorKeepChoose
+		self.fullKeepChoose = fullKeepChoose
 		# 构建一个Session对象，可以保存页面Cookie
 		self.sess = requests.Session()
 		# 构造请求报头
@@ -313,14 +315,21 @@ class Student:
 			# 发送抢课需要的POST数据，获取登录后的Cookie(保存在sess里)
 			response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
 			result = response.text.encode('utf-8')
+			self.writeLogs(result, isPrint=False)
 			try:
 				result = re.compile(r'alert\(\'(.*)\'\)',re.S).findall(result)[0]
 				# 一个元祖，里面包含该课程的 已选人数/最大人数
 				leavingsCourse = re.compile(r',"(\d*)","(\d*)","<a',re.S).findall(x_stateList[13])[0]
 			except IndexError:
-				self.writeLogs('线程{}：正在抢课【{}】\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, courseName), error=True)
-				self.writeLogs('线程{}：关闭...'.format(index))
-				break
+				self.writeLogs('线程{}：正在抢课【{}】\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, courseName), error=True)					
+				if self.errorKeepChoose:
+					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
+					threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
+					self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, threadSleepTime))
+					time.sleep(threadSleepTime) # 休息一会儿
+				else:
+					self.writeLogs('线程{}：关闭...'.format(index))
+					break
 			else:
 				self.writeLogs('线程{}：正在抢课【{}】\t结果：【{}】| {}'.format(index, courseName, result, leavingsCourse))
 				# 选课成功，关闭线程
@@ -331,10 +340,14 @@ class Student:
 					break# 关闭该线程
 				# 满了，继续抢
 				elif result == '该课程已选满，请选择其它课程！':
-					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
-					threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
-					self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, threadSleepTime))
-					time.sleep(threadSleepTime) # 休息一会儿
+					if self.fullKeepChoose:
+						self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
+						threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
+						self.writeLogs('线程{}：防止被发现，休息{:.2f}秒...'.format(index, threadSleepTime))
+						time.sleep(threadSleepTime) # 休息一会儿
+					else:
+						self.writeLogs('线程{}：关闭...'.format(index))
+						break
 				else:
 					self.writeLogs('线程{}：抢课【{}】时发生错误...错误信息：{}'.format(index, courseName, result))
 					self.writeLogs('线程{}：关闭...'.format(index))
@@ -350,13 +363,14 @@ class Student:
 				thread = threading.Thread(target=self.chooseCourse, args=(i, courseName))
 				thread.start()
 
-	def writeLogs(self, log, info=True, error=False):
+	def writeLogs(self, log, isPrint=True, info=True, error=False):
 		if error:
 			log = '[ERROR] ' + log
 		elif info:
 			log = '[INFO] ' + log
 		else: 
 			pass
-		print log
+		if isPrint:
+			print log
 		with open('runtime.logs', 'a') as f:
 			f.write('['+time.ctime()+']\n'+log+'\n\n')
