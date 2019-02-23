@@ -4,7 +4,8 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-22 21:24:05
+# @Last Modified time: 2019-02-23 00:45:22
+
 
 # 账号
 USER_ACCOUNT = {
@@ -24,8 +25,10 @@ USER_LOCATION = '苏州'
 
 
 # 填上你想选的课的名字
+# 一个列表，可以同时抢多门课（多线程并行处理）
 WANTED_COURSE_LIST = [
-	'高级图像处理与分析'
+	'高级图像处理与分析',
+	'自然语言处理',
 ]
 
 # 线程休眠时间范围

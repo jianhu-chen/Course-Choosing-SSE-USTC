@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-22 21:29:12
+# @Last Modified time: 2019-02-23 00:42:21
 
 import requests
 import re
@@ -33,6 +33,7 @@ class Student:
 		self.sleepTime = sleepTime
 		self.errorKeepChoose = errorKeepChoose
 		self.fullKeepChoose = fullKeepChoose
+		self.count = 0
 		# 构建一个Session对象，可以保存页面Cookie
 		self.sess = requests.Session()
 		# 构造请求报头
@@ -312,6 +313,7 @@ class Student:
 		}
 		# 线程抢课
 		while True:
+			self.count += 1
 			# 发送抢课需要的POST数据，获取登录后的Cookie(保存在sess里)
 			response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
 			result = response.text.encode('utf-8')
@@ -321,7 +323,7 @@ class Student:
 				# 一个元祖，里面包含该课程的 已选人数/最大人数
 				leavingsCourse = re.compile(r',"(\d*)","(\d*)","<a',re.S).findall(x_stateList[13])[0]
 			except IndexError:
-				self.writeLogs('线程{}：正在抢课【{}】\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, courseName), error=True)					
+				self.writeLogs('线程{}：正在抢课【{}】(第{}次)\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, self.count, courseName), error=True)					
 				if self.errorKeepChoose:
 					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
 					threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
