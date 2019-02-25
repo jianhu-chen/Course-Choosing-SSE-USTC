@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-25 21:57:18
+# @Last Modified time: 2019-02-25 21:59:15
 
 import requests
 import re
@@ -291,6 +291,7 @@ class Student:
 		# 搜索课程，获取X_STATE
 		response = self.sess.post(chooseCouserUrl, data=data, headers=self.headers)
 		result = response.text.encode('utf-8')
+		self.writeLogs(result, isPrint=False)
 		# with open('f.html', 'w') as f:
 		# 	f.write(result)
 		searchPattern = re.compile(r'x_state:(.*?),id:', re.S)
