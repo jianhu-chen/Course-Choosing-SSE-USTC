@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-23 00:42:21
+# @Last Modified time: 2019-02-25 10:09:19
 
 import requests
 import re
@@ -323,7 +323,7 @@ class Student:
 				# 一个元祖，里面包含该课程的 已选人数/最大人数
 				leavingsCourse = re.compile(r',"(\d*)","(\d*)","<a',re.S).findall(x_stateList[13])[0]
 			except IndexError:
-				self.writeLogs('线程{}：正在抢课【{}】(第{}次)\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, self.count, courseName), error=True)					
+				self.writeLogs('线程{}：正在抢课【{}】\t结果：未搜索到课程【{}】，请检查：课程名是否正确/或该课程已在您的选课列表中...'.format(index, courseName, courseName), error=True)					
 				if self.errorKeepChoose:
 					self.writeLogs('线程{}：持续为您抢课...'.format(index, courseName, result))
 					threadSleepTime = random.uniform(self.sleepTime[0], self.sleepTime[1])
