@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-02 11:00:01
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-22 21:23:55
+# @Last Modified time: 2019-02-26 12:20:09
 
 # 导入配置信息
 from conf import *
@@ -19,6 +19,7 @@ if __name__ == '__main__':
 	sleepTime = SLEEP_TIME
 	errorKeepChoose = ERROR_KEEP_CHOOSE
 	fullKeepChoose = FULL_KEEP_CHOOSE
+	
 	stu = Student(userAccount, userLocation, userYear, userTerm, sleepTime)
 	stu.chooseCourseMultiThread(wantedCourseList)
 
