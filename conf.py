@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-26 12:20:39
+# @Last Modified time: 2019-03-07 10:59:21
 
 
 # 账号
@@ -27,7 +27,7 @@ USER_LOCATION = '苏州'
 # 填上你想选的课的名字
 # 一个列表，可以同时抢多门课（多线程并行处理）
 WANTED_COURSE_LIST = [
-	'自然语言处理',
+	'算法设计与分析',
 ]
 
 # 线程休眠时间范围

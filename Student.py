@@ -4,7 +4,7 @@
 # @Date 	: 2019-02-01 13:08:45
 # @License 	: Copyright(C), USTC
 # @Last Modified by  : jianhuChen
-# @Last Modified time: 2019-02-26 12:20:58
+# @Last Modified time: 2019-03-07 10:50:11
 
 import requests
 import re
@@ -375,6 +375,7 @@ class Student:
 			self.writeLogs('共检测到{}个任务，正在分配线程处理...'.format(courseNum))
 			for i, courseName in enumerate(wantedCourseList):
 				thread = threading.Thread(target=self.chooseCourse, args=(i, courseName))
+				thread.daemon = False # 这个线程是重要的，在进程退出的时候，等待这个线程退出
 				thread.start()
 
 	def writeLogs(self, log, isPrint=True, info=True, error=False):
